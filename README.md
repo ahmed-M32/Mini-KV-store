@@ -16,9 +16,9 @@ This project is an attempt to understand and recreate the core mechanics of a ke
 - Optional HTTP server for RESTful access
 - Docker-ready setup for deployment and sharing
 
-## Getting Started
+## Getting Started 
 
-### Running in CLI Mode (Default)
+### Running in CLI Mode (Default) (under Development)
 
 ```bash
 java -jar kvstore.jar
