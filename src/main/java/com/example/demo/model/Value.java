@@ -11,19 +11,26 @@ public class Value {
     private Long expiresAt;
     private ValueType type;
 
+    public Value() {}
+    public Long getExpiresAt() {
+        return expiresAt;
+    }
 
-    Value(Object value, Long expiresAt, ValueType type) {
+
+
+    public Value(Object value, Long expiresAt, ValueType type) {
         this.value = value;
-        this.expiresAt = expiresAt != null ? expiresAt : 0L;
+        this.expiresAt = expiresAt;
         this.type = type;
     }
 
     public Object getValue() {
+
         return value;
     }
 
     public boolean isExpired() {
-        return expiresAt != null && expiresAt > System.currentTimeMillis();
+        return expiresAt != null && expiresAt < System.currentTimeMillis();
     }
 
     public ValueType getType() {

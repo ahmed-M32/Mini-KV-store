@@ -5,7 +5,6 @@ public enum ValueType {
     INT,
     BOOLEAN,
     FLOAT,
-    LIST,
-    SET
+    LIST
 }
 
