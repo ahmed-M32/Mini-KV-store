@@ -2,13 +2,13 @@ package com.example.demo.service;
 
 import com.example.demo.model.Value;
 import com.example.demo.store.KVstore;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-import java.nio.file.Path;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
+@Service
 public class KVService {
-    private KVstore store;
+    private final KVstore store;
 
     public KVService() {
         store = new KVstore();

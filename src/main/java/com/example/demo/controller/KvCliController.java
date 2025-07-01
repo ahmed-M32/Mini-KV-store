@@ -1,19 +1,32 @@
 package com.example.demo.controller;
 
+import com.example.demo.KvStoreApplication;
 import com.example.demo.model.Value;
 import com.example.demo.service.KVService;
 import com.example.demo.enums.*;
+import com.example.demo.utils.WebServerLauncher;
+import org.apache.catalina.core.ApplicationContext;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
+
 import java.util.List;
 import java.util.Scanner;
-
+@Component
 public class KvCliController {
     private final KVService service;
     private final Scanner scanner;
     private boolean on = true;
+    private SpringApplication server = new SpringApplication(KvStoreApplication.class);
+    private ConfigurableApplicationContext context = null;
 
-    public KvCliController(KVService storeService) {
+    public KvCliController(KVService storeService,ConfigurableApplicationContext context) {
         this.service = storeService;
         this.scanner = new Scanner(System.in);
+        this.context = context;
+        System.out.println("KVService hash1: " + System.identityHashCode(service));
+
     }
 
     public void start() {
@@ -34,45 +47,48 @@ public class KvCliController {
                 case "del" -> handleDelete(tokens);
                 case "exist" -> handleExist(tokens);
                 case "save" -> handleSave(tokens);
-                case "help"-> handleHelp();
+                case "help" -> handleHelp();
+                case "server" -> handleServer(1);
+                case "server-end" -> handleServer(2);
 
                 case "end" -> shutdown();
-                default -> System.out.println("❌ Unknown command. Try: set, get, del, exist, save, end");
+                default -> System.out.println("Unknown command. Try: set, get, del, exist, save, end, server");
             }
         }
     }
 
     private void handleHelp() {
         System.out.println("""
-    ╭─────────────────────── HELP ───────────────────────╮
-    │  set <key> <value> <type> [ttl_seconds]            │
-    │     → Store a key-value pair with optional expiry  │
-    │     → Example: set username Ahmed STRING 60        │
-    │                                                    │
-    │  get <key>                                         │
-    │     → Retrieve a value by key                      │
-    │     → Example: get username                        │
-    │                                                    │
-    │  del <key>                                         │
-    │     → Delete a key from the store                  │
-    │     → Example: del username                        │
-    │                                                    │
-    │  exist <key>                                       │
-    │     → Check if a key exists in the store           │
-    │     → Example: exist username                      │
-    │                                                    │
-    │  save <filename.json>                              │
-    │     → Save the entire store as a JSON file         │
-    │     → Example: save snapshot.json                  │
-    │                                                    │
-    │  help                                              │
-    │     → Print this very help menu                    │
-    │                                                    │
-    │  end                                               │
-    │     → Exit the CLI                                 │
-    ╰────────────────────────────────────────────────────╯
-    """);
+                ╭─────────────────────── HELP ───────────────────────╮
+                │  set <key> <value> <type> [ttl_seconds]            │
+                │     → Store a key-value pair with optional expiry  │
+                │     → Example: set username Ahmed STRING 60        │
+                │                                                    │
+                │  get <key>                                         │
+                │     → Retrieve a value by key                      │
+                │     → Example: get username                        │
+                │                                                    │
+                │  del <key>                                         │
+                │     → Delete a key from the store                  │
+                │     → Example: del username                        │
+                │                                                    │
+                │  exist <key>                                       │
+                │     → Check if a key exists in the store           │
+                │     → Example: exist username                      │
+                │                                                    │
+                │  save <filename.json>                              │
+                │     → Save the entire store as a JSON file         │
+                │     → Example: save snapshot.json                  │
+                │                                                    │
+                │  help                                              │
+                │     → Print this very help menu                    │
+                │                                                    │
+                │  end                                               │
+                │     → Exit the CLI                                 │
+                ╰────────────────────────────────────────────────────╯
+                """);
     }
+
     private void handleSet(String[] tokens) {
         if (tokens.length < 4) {
             System.out.println("⚠️  Usage: set <key> <value> <type> [ttl_seconds]");
@@ -117,7 +133,7 @@ public class KvCliController {
         if (val == null) {
             System.out.println("Value not found or expired.");
         } else {
-            System.out.println( val);
+            System.out.println(val);
         }
     }
 
@@ -137,6 +153,17 @@ public class KvCliController {
 
         boolean exists = service.valueExists(tokens[1]);
         System.out.println(exists ? " Item exists!" : "Item does not exist in store.");
+    }
+
+    private void handleServer(int code) {
+
+        if (code == 1) {
+            WebServerLauncher.start( context);
+        } else {
+            context.close();
+        }
+
+
     }
 
     private void handleSave(String[] tokens) {
